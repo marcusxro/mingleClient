@@ -55,7 +55,7 @@ const SearchedPost = () => {
                 console.log(err);
             });
     }, [filteredAcc, nonFiltered]);
-    
+
 
     const [searchVal, setSearchVal] = useState('')
     const [posts, setPosts] = useState([])
@@ -101,97 +101,121 @@ const SearchedPost = () => {
         <div className='SearchedPost'>
             <Header userObj={filteredAcc} />
 
-            <div className="content">
-                {
-                    filteredAcc[0] && params.postID ?
-                        <>
-                            {
-                                filteredPosts?.map((post) => (
-                                    <div
-                                        onClick={() => {
-                                            nav(`/post/${post._id}`)
-                                        }}
-                                        className="postItem">
+            <React.Fragment>
+                <div className="navigator">
+                    <div 
+                    onClick={() => {nav('/Search')}}
+                    className="back">
+                    <ion-icon name="arrow-back-circle-outline"></ion-icon>
+                    </div>
+                    <div className="result">
+                        Results on "{params?.postID}"
+                    </div>
+                    <div className="menu">
+                        <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+                    </div>
+                </div>
+                <div className="content">
+                    {
+                        filteredPosts && filteredAcc[0] && params.postID ?
+                            <>
+                                {
+                                    filteredPosts?.length === 0 &&
+                                    <div className="noPostFound">
+                                        <h3>No posts found about "{params.postID}"</h3>
+                                        <button>Search another keyword</button>
+                                    </div>
+                                }
+                                {
+                                    filteredPosts?.map((post) => (
+                                        <div
+                                            onClick={() => {
+                                                nav(`/post/${post._id}`)
+                                            }}
+                                            className="postItem">
 
 
-                                        <div className="first">
+                                            <div className="first">
 
-                                            <div className="pfp">
-                                                <img src={returnPfpOfUser(post.userObj.Uid)} alt="" />
-                                            </div>
+                                                <div className="pfp">
+                                                    <img src={returnPfpOfUser(post.userObj.Uid)} alt="" />
+                                                </div>
 
-                                            <div className="postContent">
-                                                <div className="userInfo">
-                                                    <div className="wrapper">
-                                                        <div className="firstCon">
-                                                            <div className="userName">
-                                                                {post?.userObj.Username}
+                                                <div className="postContent">
+                                                    <div className="userInfo">
+                                                        <div className="wrapper">
+                                                            <div className="firstCon">
+                                                                <div className="userName">
+                                                                    {post?.userObj.Username}
+                                                                </div>
+                                                                <div className="Date">
+                                                                    {moment(new Date(parseInt(post?.Date, 10))).fromNow()}
+                                                                </div>
                                                             </div>
-                                                            <div className="Date">
-                                                                {moment(new Date(parseInt(post?.Date, 10))).fromNow()}
+                                                            <div className="menu">
+                                                                <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
                                                             </div>
                                                         </div>
-                                                        <div className="menu">
-                                                            <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+                                                        <div className="fullName">
+                                                            {post?.userObj.Fullname}
                                                         </div>
                                                     </div>
-                                                    <div className="fullName">
-                                                        {post?.userObj.Fullname}
+                                                    <div className="TextContent">
+                                                        {post?.TextContent}
                                                     </div>
-                                                </div>
-                                                <div className="TextContent">
-                                                    {post?.TextContent}
-                                                </div>
-                                                <div className="actions">
-                                                    {
-                                                        post.Up && post.Up.some((user) => user?.Uid === userId) ?
-                                                            <>
-                                                                <div
-                                                                    className="actionItem liked">
-                                                                    <ion-icon name="arrow-up-outline"></ion-icon>
-                                                                </div>
-                                                            </>
-                                                            :
-                                                            <>
-                                                                <div className="actionItem">
-                                                                    <ion-icon name="arrow-up-outline"></ion-icon>
-                                                                </div>
-                                                            </>
-                                                    }
-                                                    <div className="actionItem">
-                                                        <ion-icon name="arrow-down-outline"></ion-icon>
+                                                    <div className="actions">
+                                                        {
+                                                            post.Up && post.Up.some((user) => user?.Uid === userId) ?
+                                                                <>
+                                                                    <div
+                                                                        className="actionItem liked">
+                                                                        <ion-icon name="arrow-up-outline"></ion-icon>
+                                                                    </div>
+                                                                </>
+                                                                :
+                                                                <>
+                                                                    <div className="actionItem">
+                                                                        <ion-icon name="arrow-up-outline"></ion-icon>
+                                                                    </div>
+                                                                </>
+                                                        }
+                                                        <div className="actionItem">
+                                                            <ion-icon name="arrow-down-outline"></ion-icon>
+                                                        </div>
+                                                        <div className="actionItem">
+                                                            <ion-icon name="chatbox-outline"></ion-icon>
+                                                        </div>
+                                                        <div className="actionItem">
+                                                            <ion-icon name="open-outline"></ion-icon>
+                                                        </div>
                                                     </div>
-                                                    <div className="actionItem">
-                                                        <ion-icon name="chatbox-outline"></ion-icon>
-                                                    </div>
-                                                    <div className="actionItem">
-                                                        <ion-icon name="open-outline"></ion-icon>
-                                                    </div>
-                                                </div>
 
-                                                <div className="count">
-                                                    <div
-                                                        className="likes countBtn">
-                                                        {post.Up.length + `${post.Up.length > 1 ? ' Likes' : ' Like'}` + ', ' +
-                                                            post.Down.length + `${post.Down.length > 1 ? ' Dislikes' : ' Dislike'}`}
+                                                    <div className="count">
+                                                        <div
+                                                            className="likes countBtn">
+                                                            {post.Up.length + `${post.Up.length > 1 ? ' Likes' : ' Like'}` + ', ' +
+                                                                post.Down.length + `${post.Down.length > 1 ? ' Dislikes' : ' Dislike'}`}
+                                                        </div>
+                                                        <div className="replies countBtn">
+                                                            {", " + post.Comments.length + `${post.Comments.length > 1 ? ' Comments' : ' Comment'}`}
+                                                        </div>
                                                     </div>
-                                                    <div className="replies countBtn">
-                                                        {", " + post.Comments.length + `${post.Comments.length > 1 ? ' Comments' : ' Comment'}`}
-                                                    </div>
-                                                </div>
 
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))
-                            }
-                        </>
-                        :
-                        <div className="loadingEl">
-                            loading...
-                        </div>
-                }
-            </div>
+                                    ))
+                                }
+                            </>
+                            :
+                            <div className="loadingEl">
+                                loading...
+                            </div>
+                    }
+                </div>
+            </React.Fragment>
+
+
         </div>
     )
 }

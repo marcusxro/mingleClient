@@ -13,6 +13,7 @@ import CommentModal from '../comps/CommentModal';
 import EditUser from '../comps/EditUser';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import SeeFollowers from '../comps/SeeFollowers';
 
 const UrProfile = () => {
     const nav = useNavigate();
@@ -42,6 +43,7 @@ const UrProfile = () => {
 
     const [filteredAcc, setFiltered] = useState([]);
     const [nonFiltered, setNonFiltered] = useState([])
+    
     useEffect(() => {
         axios
             .get('http://localhost:8080/getAccs')
@@ -78,13 +80,38 @@ const UrProfile = () => {
         setIsRender(false)
     }
 
-    const handleShowModalClose = () => {
-        setShowModal(false)
-    }
 
     const pfpPath = filteredAcc[0] && filteredAcc[0].Pfp ? require(`../profiles/${filteredAcc[0].Pfp}`) : null;
 
 
+    const [openFollowerAndFollowing, setFollowerAndFollowing] = useState({})
+
+    const handleShowModalClose = () => {
+        setShowModal(false)
+        setFollowerAndFollowing({})
+    }
+    const [openModal, setOpenModal] = useState(false)
+
+    const [tabTitle, setTabTitle] = useState('')
+
+    useEffect(() => {       
+
+
+      const provideInfo = () => {
+        setFollowerAndFollowing({
+            userObj: filteredAcc[0],
+            Following: filteredAcc[0]?.Following,
+            Followers: filteredAcc[0]?.Followers,
+            tabTitle: tabTitle
+        })
+      }
+
+      provideInfo()
+
+
+      return () => {provideInfo()}
+
+    }, [openModal, openFollowerAndFollowing, tabTitle])
 
     return (
         <div className='UrProfile closer'>
@@ -105,7 +132,17 @@ const UrProfile = () => {
                     </div>
                     : <></>
             }
-
+            {
+                openFollowerAndFollowing && filteredAcc[0] && openModal &&
+                <div
+                    onClick={() => {
+                        setOpenModal(prevClick => !prevClick)
+                        setFollowerAndFollowing({})
+                    }}
+                    className="con">
+                    <SeeFollowers userDetails={openFollowerAndFollowing} />
+                </div>
+            }
 
             <div className="content">
                 {
@@ -128,10 +165,20 @@ const UrProfile = () => {
                                 </div>
                             </div>
                             <div className="secCon">
-                                <div className="followers btnForProf">
+                                <div
+                                    onClick={() => {
+                                        setOpenModal(true)
+                                        setTabTitle('Followers')
+                                    }}
+                                    className="followers btnForProf">
                                     {filteredAcc[0] && filteredAcc[0].Followers.length + ' Followers'}
                                 </div>
-                                <div className="following btnForProf">
+                                <div
+                                    onClick={() => {
+                                        setOpenModal(true)
+                                        setTabTitle('Following')
+                                    }}
+                                    className="following btnForProf">
                                     {filteredAcc[0] && filteredAcc[0].Following.length + ' Following'}
                                 </div>
                                 <div className="posts btnForProf">
@@ -178,7 +225,7 @@ const UrProfile = () => {
 
 
                                                                 <div className="pfp">
-                                                                <img src={pfpPath} alt="" />
+                                                                    <img src={pfpPath} alt="" />
                                                                 </div>
                                                                 <div className="userInf">
                                                                     <div className="first">

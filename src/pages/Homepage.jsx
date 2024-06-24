@@ -9,6 +9,10 @@ const Homepage = () => {
     const [splineEl, setSplineEl] = useState(null)
 
     useEffect(() => {
+        document.title = `Mingle | Homepage`
+    }, [])
+
+    useEffect(() => {
         axios.get('https://prod.spline.design/mMs2UHpZ5GhupVia/scene.splinecode')
             .then((res) => {
                 setSplineEl(res.status)

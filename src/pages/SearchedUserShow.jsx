@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { authentication } from './FirebaseKey'
 import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
 import Header from '../comps/Header'
 import moment from 'moment'
+import SeeFollowers from '../comps/SeeFollowers'
 
 const SearchedUserShow = () => {
 
@@ -35,6 +36,8 @@ const SearchedUserShow = () => {
     }, [feedName]);
 
     const [filteredAcc, setFilteredAcc] = useState([]);
+
+
     useEffect(() => {
         axios
             .get('http://localhost:8080/getAccs')
@@ -91,22 +94,22 @@ const SearchedUserShow = () => {
         Fullname: filteredAcc[0] && filteredAcc[0].Fullname,
         Username: filteredAcc[0] && filteredAcc[0].Username,
         Uid: filteredAcc[0] && filteredAcc[0].Uid,
-      }
-
-      
-    const followUser = (userIdToFollow) => {
-
-            axios.post('http://localhost:8080/FollowUser', {
-                userUidToFollow: userIdToFollow,
-                followerObj: userObj
-            }).then(() => {
-                console.log("User Followed!")
-            }).catch((err) => {
-                console.log(err)
-            })
     }
 
-          
+
+    const followUser = (userIdToFollow) => {
+
+        axios.post('http://localhost:8080/FollowUser', {
+            userUidToFollow: userIdToFollow,
+            followerObj: userObj
+        }).then(() => {
+            console.log("User Followed!")
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+
+
     const unfollowUser = (userIdToFollow) => {
 
         axios.post('http://localhost:8080/UnfollowUser', {
@@ -117,12 +120,61 @@ const SearchedUserShow = () => {
         }).catch((err) => {
             console.log(err)
         })
-}
+    }
+
+    const [openFollowerAndFollowing, setFollowerAndFollowing] = useState({})
+    const [tabTitle, setTabTitle] = useState('Followers')
+    const [userUid, setUserUid] = useState('')
+    const isInitialSet = useRef(false);
+
+
+    const [openModal, setOpenModal] = useState(false)
+
+
+    console.log(filteredUser[0]?.Uid)
+
+    
+    useEffect(() => {
+        const provideInfo = () => {
+            setFollowerAndFollowing({
+                view: true,
+                userIdentification: filteredUser[0]?.Uid,
+                Following: filteredUser[0]?.Following,
+                Followers: filteredUser[0]?.Followers,
+                tabTitle: tabTitle
+            })
+        }
+
+        provideInfo()
+
+
+        return () => { provideInfo() }
+
+    }, [openModal, openFollowerAndFollowing, tabTitle])
+
+
+    const handleTabChange = (newTabTitle) => {
+        setTabTitle(newTabTitle);
+        isInitialSet.current = true; // Mark that manual change has occurred
+    };
+
+
 
 
     return (
         <div className='SearchedUserShow closer'>
             <Header userObj={filteredAcc} />
+            {
+                openFollowerAndFollowing && filteredAcc[0] && openModal &&
+                <div
+                    onClick={() => {
+                        setOpenModal(prevClick => !prevClick)
+                        setFollowerAndFollowing({})
+                    }}
+                    className="con">
+                    <SeeFollowers userDetails={openFollowerAndFollowing} />
+                </div>
+            }
             <div className="content">
                 {
                     filteredUser[0] ?
@@ -141,10 +193,20 @@ const SearchedUserShow = () => {
                                 </div>
                             </div>
                             <div className="secCon">
-                                <div className="followers btnForProf">
+                                <div
+                                    onClick={() => {
+                                        setOpenModal(prevClick => !prevClick)
+                                        handleTabChange("Followers")
+                                    }}
+                                    className="followers btnForProf">
                                     {filteredUser[0] && filteredUser[0].Followers.length + ' Followers'}
                                 </div>
-                                <div className="following btnForProf">
+                                <div
+                                    onClick={() => {
+                                        setOpenModal(prevClick => !prevClick)
+                                        handleTabChange("Following")
+                                    }}
+                                    className="following btnForProf">
                                     {filteredUser[0] && filteredUser[0].Following.length + ' Following'}
                                 </div>
                                 <div className="posts btnForProf">
@@ -164,19 +226,19 @@ const SearchedUserShow = () => {
                                     filteredUser[0]?.Followers.some((user) => user.Uid === userId) ?
                                         <div className="btnCon">
                                             <button
-                                            onClick={() => {
-                                                unfollowUser(filteredUser[0]?.Uid)
-                                            }}
-                                             className='unfollow'>
+                                                onClick={() => {
+                                                    unfollowUser(filteredUser[0]?.Uid)
+                                                }}
+                                                className='unfollow'>
                                                 Unfollow
                                             </button>
                                         </div>
                                         :
                                         <div className="btnCon">
                                             <button
-                                            onClick={() => {
-                                                followUser(filteredUser[0]?.Uid)
-                                            }}
+                                                onClick={() => {
+                                                    followUser(filteredUser[0]?.Uid)
+                                                }}
                                             >
                                                 Follow
                                             </button>

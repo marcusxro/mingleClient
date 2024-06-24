@@ -100,6 +100,7 @@ const SearchUser = () => {
             <Header userObj={filteredAcc} />
             <ToastContainer />
 
+        
             <div className="content">
                 <div className="inputCon">
                     <div className="iconOne">
@@ -138,6 +139,7 @@ const SearchUser = () => {
                                 </div>
                             </div>
                         }
+                        {searchVal && filteredPosts.length === 0 && 'loading'}
                         {
                             searchVal && filteredPosts?.slice(0, 3).map((post) => (
                                 <div
